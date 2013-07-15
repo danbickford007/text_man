@@ -1,9 +1,18 @@
 include Java
+swing_classes = %w(JFrame JButton JList JSplitPane
+JTabbedPane JTextPane JScrollPane JEditorPane
+DefaultListModel ListSelectionModel BoxLayout
+JScrollPane JTree tree.TreeModel
+text.html.HTMLEditorKit tree.DefaultMutableTreeNode tree.TreeNode)
+swing_classes.each do |c|
+  java_import "javax.swing.#{c}"
+end
 
 import java.lang.System
 import java.awt.BorderLayout
 import java.awt.Color
 import javax.swing.JFrame
+import javax.swing.JTree
 import javax.swing.JButton
 import javax.swing.JPanel
 import javax.swing.JToolBar
@@ -18,13 +27,12 @@ require_relative 'filer'
 class View < JFrame
   
     def initialize
-        super "FileChooser"
+        super "TextDog"
         @filer = Filer.new        
         self.initUI
     end
       
     def initUI
-      
         @panel = JPanel.new
         @panel.setLayout BorderLayout.new
         toolbar = JToolBar.new
@@ -63,9 +71,29 @@ class View < JFrame
           @current_file = nil
         end
 
+        closeb.addActionListener do |e|
+          @area.setText ''
+          @current_file = nil
+        end
+
         exitb.addActionListener do |e|
           System.exit 0
         end
+
+
+        n = 0
+        dir = Dir.new(".")
+        dir_node = DefaultMutableTreeNode.new(dir)
+        tree = JTree.new(dir_node)
+        scrollPane = JScrollPane.new(tree)
+        dir.each { |f|
+          node = DefaultMutableTreeNode.new(f)
+          dir_node.insert(node, n)
+          n += 1
+        }
+        @panel.add scrollPane, BorderLayout::EAST
+        
+
 
         toolbar.add newb
         toolbar.add openb
