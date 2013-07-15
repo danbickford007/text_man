@@ -45,13 +45,16 @@ class View < JFrame
         end
 
         saveb.addActionListener do |e|
-          p "SAVE-------->"
-          p @area.getText
-          p @current_file
           if @current_file
             @filer.save(@current_file, @area)
           else
-            p 'PROMPT FOR SAVE AS'
+            chooseFile = JFileChooser.new
+            ret = chooseFile.showDialog @panel, "Save As"
+
+            if ret == JFileChooser::APPROVE_OPTION
+                file = chooseFile.getSelectedFile
+                @filer.save_as(file, @area.getText)
+            end
           end
         end
 

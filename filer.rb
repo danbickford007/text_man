@@ -16,7 +16,13 @@ class Filer
     File.open(file_name, 'w') do |f|
       f.puts area.getText
     end
+  end
 
+  def save_as(file, content)
+    filename = file.getCanonicalPath
+    File.open(filename, 'w') do |f|
+      f.puts content
+    end
   end
 
 end
