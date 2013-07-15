@@ -1,5 +1,6 @@
 include Java
 
+import java.lang.System
 import java.awt.BorderLayout
 import java.awt.Color
 import javax.swing.JFrame
@@ -12,13 +13,13 @@ import javax.swing.JTextPane
 import javax.swing.JScrollPane
 import javax.swing.BorderFactory
 import javax.swing.filechooser::FileNameExtensionFilter
-
+require_relative 'filer'
 
 class View < JFrame
   
     def initialize
         super "FileChooser"
-        
+        @filer = Filer.new        
         self.initUI
     end
       
@@ -26,7 +27,6 @@ class View < JFrame
       
         @panel = JPanel.new
         @panel.setLayout BorderLayout.new
-
         toolbar = JToolBar.new
         newb = JButton.new "New"
         openb = JButton.new "Open"
@@ -40,18 +40,28 @@ class View < JFrame
             if ret == JFileChooser::APPROVE_OPTION
                 file = chooseFile.getSelectedFile
                 text = self.readFile file
-                content = ''
-                text.each{|x| content += x }
-                @area.setText content.to_s.force_encoding('utf-8').encode
+                @area.setText text.to_s.force_encoding('utf-8').encode
             end
         end
 
         saveb.addActionListener do |e|
           p "SAVE-------->"
           p @area.getText
-          File.open('test.txt', 'w') do |f|
-            f.puts @area.getText
+          p @current_file
+          if @current_file
+            @filer.save(@current_file, @area)
+          else
+            p 'PROMPT FOR SAVE AS'
           end
+        end
+
+        newb.addActionListener do |e|
+          @area.setText ''
+          @current_file = nil
+        end
+
+        exitb.addActionListener do |e|
+          System.exit 0
         end
 
         toolbar.add newb
@@ -78,11 +88,9 @@ class View < JFrame
     end
     
     def readFile file
-        
-        filename = file.getCanonicalPath
-        f = File.open filename, "r"
-        text = IO.readlines filename
-        return text
+      text = @filer.open file        
+      @current_file = @filer.filename
+      return text
     end    
 end
 
