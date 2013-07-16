@@ -80,11 +80,14 @@ class View < JFrame
           System.exit 0
         end
 
-
         n = 0
         dir = Dir.new(".")
         dir_node = DefaultMutableTreeNode.new(dir)
         tree = JTree.new(dir_node)
+        tree.addTreeSelectionListener do |e|
+          filename = tree.getLastSelectedPathComponent.getUserObject
+          p filename
+        end
         scrollPane = JScrollPane.new(tree)
         dir.each { |f|
           node = DefaultMutableTreeNode.new(f)
