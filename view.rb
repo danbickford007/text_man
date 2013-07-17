@@ -42,14 +42,14 @@ class View < JFrame
         closeb = JButton.new "Close"
         exitb = JButton.new "Exit"
         openb.addActionListener do |e|
-            chooseFile = JFileChooser.new
-            ret = chooseFile.showDialog @panel, "Choose file"
+          chooseFile = JFileChooser.new
+          ret = chooseFile.showDialog @panel, "Choose file"
 
-            if ret == JFileChooser::APPROVE_OPTION
-                file = chooseFile.getSelectedFile
-                text = self.readFile file
-                @area.setText text.to_s.force_encoding('utf-8').encode
-            end
+          if ret == JFileChooser::APPROVE_OPTION
+            file = chooseFile.getSelectedFile
+            text = self.readFile file
+            @area.setText text.to_s.force_encoding('utf-8').encode
+          end
         end
 
         saveb.addActionListener do |e|
@@ -79,24 +79,19 @@ class View < JFrame
         exitb.addActionListener do |e|
           System.exit 0
         end
-
+        root = "/Users/dan"
         n = 0
-        dir = Dir.new(".")
+        dir = Dir.new(root)
         dir_node = DefaultMutableTreeNode.new(dir)
         tree = JTree.new(dir_node)
         tree.addTreeSelectionListener do |e|
           filename = tree.getLastSelectedPathComponent.getUserObject
           p filename
+          p f = tree.getLastSelectedPathComponent.getPath
         end
         scrollPane = JScrollPane.new(tree)
-        dir.each { |f|
-          node = DefaultMutableTreeNode.new(f)
-          dir_node.insert(node, n)
-          n += 1
-        }
+        create_tree(dir, dir_node, root) 
         @panel.add scrollPane, BorderLayout::EAST
-        
-
 
         toolbar.add newb
         toolbar.add openb
@@ -125,7 +120,25 @@ class View < JFrame
       text = @filer.open file        
       @current_file = @filer.filename
       return text
-    end    
+    end
+
+    def create_tree(dir, dir_node, path)
+      dir.each { |f|
+        next if f == "." or f == ".." or f[0] == "." or f.include? '.result'
+        p = File.join(path, f)
+        file_dir = File.directory?(p)
+        if file_dir
+          dir = Dir.new(p)
+          node = DefaultMutableTreeNode.new(f)
+          dir_node.add(node)
+          create_tree(dir, node, p)
+        else
+          node = DefaultMutableTreeNode.new(f)
+          dir_node.add(node)
+        end
+      }
+    end
+
 end
 
 View.new
