@@ -12,6 +12,14 @@ class Filer
     content
   end
 
+  def open_by_path(path)
+    f = File.open path, "r"
+    text = IO.readlines path
+    content = ''
+    text.each{|x| content += x }
+    content
+  end
+
   def save(file_name, area)
     File.open(file_name, 'w') do |f|
       f.puts area.getText

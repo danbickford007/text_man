@@ -23,6 +23,8 @@ import javax.swing.JScrollPane
 import javax.swing.BorderFactory
 import javax.swing.filechooser::FileNameExtensionFilter
 require_relative 'filer'
+require_relative 'my_tree_node'
+
 
 class View < JFrame
   
@@ -79,7 +81,7 @@ class View < JFrame
         exitb.addActionListener do |e|
           System.exit 0
         end
-        root = "/Users/dan"
+        root = "/Users/dan/Desktop"
         n = 0
         dir = Dir.new(root)
         dir_node = DefaultMutableTreeNode.new(dir)
@@ -88,6 +90,8 @@ class View < JFrame
           filename = tree.getLastSelectedPathComponent.getUserObject
           p filename
           p f = tree.getLastSelectedPathComponent.getPath
+          p @current_file = tree.getLastSelectedPathComponent.path
+          @area.setText @filer.open_by_path(tree.getLastSelectedPathComponent.path)
         end
         scrollPane = JScrollPane.new(tree)
         create_tree(dir, dir_node, root) 
@@ -129,12 +133,13 @@ class View < JFrame
         file_dir = File.directory?(p)
         if file_dir
           dir = Dir.new(p)
-          node = DefaultMutableTreeNode.new(f)
-          dir_node.add(node)
-          create_tree(dir, node, p)
+          n = MyTreeNode.new(n, f, p)
+          dir_node.add(n)
+          create_tree(dir, n, p)
         else
-          node = DefaultMutableTreeNode.new(f)
-          dir_node.add(node)
+          #node = DefaultMutableTreeNode.new(f)
+          n = MyTreeNode.new(f, f, p)
+          dir_node.add(n)
         end
       }
     end
